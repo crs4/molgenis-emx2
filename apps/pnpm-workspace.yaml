@@ -13,17 +13,18 @@ packages:
 - tailwind-components
 - catalogue
 - molgenis-viz
-- cranio-public
-- cranio-provider
-- ern-genturis
-- ern-ithaca
-- ern-reconnet
-- ern-skin
-- nestor-public
+# - cranio-public
+# - cranio-provider
+# - ern-genturis
+#- ern-ithaca
+#- ern-reconnet
+#- ern-skin
+#- nestor-public
 - reports
 - tasks
 - gportal
 - projectmanager
 - aggregates
-- directory
+# - directory
+- r3b
 - ui
