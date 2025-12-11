@@ -20,8 +20,8 @@
           v-model="therapeuticArea"
           class="form-select">
           <option :value="null">-- {{ $t('select_therapeutic_area_message') }} --</option>
-          <option v-for="item in therapeuticAreaOptions" :key="item.iri" :value="item.iri">
-            {{ item[getI18nLabel()] }}
+          <option v-for="item in therapeuticAreaOptions" :key="item.id" :value="item.iri">
+            {{ item[getI18nLabelItem()] }}
           </option>
         </select>
       </div>
@@ -33,7 +33,7 @@
           class="form-select">
           <option :value="null">-- {{ $t('select_study_status_message') }} --</option>
           <option v-for="item in statusOptions" :key="item.id" :value="item.id">
-            {{ item[getI18nLabel()] }}
+            {{ item[getOntologyI18nLabelItem()] }}
           </option>
         </select>
       </div>
@@ -90,7 +90,7 @@
           class="form-select">
           <option :value="null">-- {{ $t('select_therapeutic_area_message') }} --</option>
           <option v-for="item in therapeuticAreaOptions" :key="item.prefixIRI" :value="item.prefixIRI">
-            {{ item[getI18nLabel()] }}
+            {{ item[getI18nLabelItem()] }}
           </option>
         </select>
       </div>
@@ -101,8 +101,8 @@
           v-model="studyStatus"
           class="form-select">
           <option :value="null">-- {{ $t('select_study_status_message') }} --</option>
-          <option v-for="item in statusOptions" :key="item.id" :value="item.id">
-            {{ item[getI18nLabel()] }}
+          <option v-for="item in statusOptions" :key="item.code" :value="item.code">
+            {{ item[getOntologyI18nLabelItem()] }}
           </option>
         </select>
       </div>
@@ -143,10 +143,10 @@
 </template>
 
 <script setup>
-import _ from 'underscore'
+import _, { filter } from 'underscore'
 import { useFiltersStore } from '../stores/filters'
 import { computed, ref, onMounted } from 'vue'
-import { getI18nLabel } from '../utils/index'
+import { getOntologyI18nLabelItem, getI18nLabelItem } from '../utils/index'
 // import VueTypeaheadBootstrap from 'vue-typeahead-bootstrap'
 
 defineProps({
@@ -157,10 +157,6 @@ defineProps({
 })
 const filtersStore = useFiltersStore()
 
-// const router = useRouter()
-// const route = useRoute()
-// const store = useStore()
-
 const therapeuticArea = ref(null)
 const studyStatus = ref(null)
 const selectedCollectedParameter = ref({})
@@ -169,10 +165,11 @@ const collectedParameter = ref('')
 const disease = ref('')
 const getAllButtonId = ref('get-all-button')
 
-const statusOptions = computed(() => filtersStore.statusOptions)
-const diseaseOptions = computed(() => filtersStore.diseaseOptions)
-const therapeuticAreaOptions = computed(() => filtersStore.therapeuticAreaOptions)
-const collectedParameterOptions = computed(() => filtersStore.collectedParameterOptions)
+const statusOptions = ref([])
+// const diseaseOptions = ref([])
+
+const therapeuticAreaOptions = ref([])
+// const collectedParameterOptions = computed(() => filtersStore.collectedParameterOptions)
 
 const isSubmitButtonDisabled = computed(() => {
   return (
@@ -262,7 +259,10 @@ const getFiltersFromUrl = function () {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  statusOptions.value = await filtersStore.getStudyStatusOptions()
+  therapeuticAreaOptions.value = await filtersStore.getTherapeuticAreaOptions()
+  console.log(therapeuticAreaOptions.value)
   // store.dispatch('getDiseaseOptions')
   // store.dispatch('getStudyStatusOptions')
   // store.dispatch('getTherapeuticAreaOptions')

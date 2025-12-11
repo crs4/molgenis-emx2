@@ -46,7 +46,7 @@
 </template>
 
 <script>
-import { getI18nLabel } from '../utils'
+import { getOntologyI18nLabelItem } from '../utils'
 
 export default {
   name: 'StudyAttribute',
@@ -62,7 +62,7 @@ export default {
     valueType () {
       return typeof this.value
     },
-    getI18nLabel: getI18nLabel
+    getI18nLabel: getOntologyI18nLabelItem
   },
   methods: {
     badgeColor () {

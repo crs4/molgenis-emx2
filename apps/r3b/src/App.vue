@@ -50,7 +50,6 @@
 import { Molgenis } from "molgenis-components";
 import { useSettingsStore } from "./stores/settings"
 import { useFavicon } from "@vueuse/core";
-// import { storeToRefs } from "pinia"
 import { ref, onMounted } from "vue";
 
 const session = ref({});
