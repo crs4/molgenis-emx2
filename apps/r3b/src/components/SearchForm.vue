@@ -17,7 +17,7 @@
         <label for="therapeutic-area" class="form-label">{{ $t('therapeutic_area_label') }}</label>
         <select
           id="therapeutic-area"
-          v-model="therapeuticArea"
+          v-model="selectedTherepeuticArea"
           class="form-select">
           <option :value="null">-- {{ $t('select_therapeutic_area_message') }} --</option>
           <option v-for="item in therapeuticAreaOptions" :key="item.id" :value="item.iri">
@@ -29,10 +29,10 @@
         <label for="study-status" class="form-label">{{ $t('study_status_label') }}</label>
         <select
           id="study-status"
-          v-model="studyStatus"
+          v-model="selectedStatus"
           class="form-select">
           <option :value="null">-- {{ $t('select_study_status_message') }} --</option>
-          <option v-for="item in statusOptions" :key="item.id" :value="item.id">
+          <option v-for="item in statusOptions" :key="item.code" :value="item.code">
             {{ item[getOntologyI18nLabelItem()] }}
           </option>
         </select>
@@ -86,10 +86,10 @@
         <label for="therapeutic-area-inline" class="form-label">{{ $t('therapeutic_area_label') }}</label>
         <select
           id="therapeutic-area-inline"
-          v-model="therapeuticArea"
+          v-model="selectedTherepeuticArea"
           class="form-select">
           <option :value="null">-- {{ $t('select_therapeutic_area_message') }} --</option>
-          <option v-for="item in therapeuticAreaOptions" :key="item.prefixIRI" :value="item.prefixIRI">
+          <option v-for="item in therapeuticAreaOptions" :key="item.id" :value="item.prefixIRI">
             {{ item[getI18nLabelItem()] }}
           </option>
         </select>
@@ -98,7 +98,7 @@
         <label for="study-status-inline" class="form-label">{{ $t('study_status_label') }}</label>
         <select
           id="study-status-inline"
-          v-model="studyStatus"
+          v-model="selectedStatus"
           class="form-select">
           <option :value="null">-- {{ $t('select_study_status_message') }} --</option>
           <option v-for="item in statusOptions" :key="item.code" :value="item.code">
@@ -143,84 +143,85 @@
 </template>
 
 <script setup>
-import _, { filter } from 'underscore'
+// import _, { filter } from 'underscore'
 import { useFiltersStore } from '../stores/filters'
+import { useStudiesStore } from '../stores/studies'
 import { computed, ref, onMounted } from 'vue'
 import { getOntologyI18nLabelItem, getI18nLabelItem } from '../utils/index'
 // import VueTypeaheadBootstrap from 'vue-typeahead-bootstrap'
 
-defineProps({
+const props = defineProps({
   layout: {
     type: String,
     default: 'form'
   }
 })
 const filtersStore = useFiltersStore()
+const studiesStore = useStudiesStore()
 
-const therapeuticArea = ref(null)
-const studyStatus = ref(null)
-const selectedCollectedParameter = ref({})
-const selectedDisease = ref({})
+const selectedTherepeuticArea = ref(null)
+const selectedStatus = ref(null)
+const selectedCollectedParameter = ref(null)
+const selectedDisease = ref(null)
+
 const collectedParameter = ref('')
 const disease = ref('')
 const getAllButtonId = ref('get-all-button')
 
 const statusOptions = ref([])
-// const diseaseOptions = ref([])
-
 const therapeuticAreaOptions = ref([])
+// const diseaseOptions = ref([])
 // const collectedParameterOptions = computed(() => filtersStore.collectedParameterOptions)
 
 const isSubmitButtonDisabled = computed(() => {
   return (
-    !studyStatus.value &&
-    !disease.value &&
-    !therapeuticArea.value &&
-    !collectedParameter.value
+    !selectedStatus.value &&
+    // !disease.value &&
+    !selectedTherepeuticArea.value
+    // !collectedParameter.value
   )
 })
 
 const isResetButtonDisabled = computed(() => isSubmitButtonDisabled.value)
 
-const diseaseSearch = _.debounce(function (query) {
-  if (query === '') {
-    selectedDisease.value = {}
-  } else {
-    store.dispatch('getDiseaseOptions', query)
-  }
-}, 500)
+// const diseaseSearch = _.debounce(function (query) {
+//   if (query === '') {
+//     selectedDisease.value = {}
+//   } else {
+//     store.dispatch('getDiseaseOptions', query)
+//   }
+// }, 500)
 
-const collectedParameterSearch = _.debounce(function (query) {
-  if (query === '') {
-    selectedCollectedParameter.value = {}
-  } else {
-    store.dispatch('getCollectedParameterOptions', query)
-  }
-}, 500)
+// const collectedParameterSearch = _.debounce(function (query) {
+//   if (query === '') {
+//     selectedCollectedParameter.value = {}
+//   } else {
+//     store.dispatch('getCollectedParameterOptions', query)
+//   }
+// }, 500)
 
-const onSubmit = function (event) {
+async function onSubmit (event) {
   if (event.submitter.id === getAllButtonId.value) {
-    studyStatus.value = null
-    disease.value = null
-    therapeuticArea.value = null
+    selectedStatus.value = null
+    selectedDisease.value = null
+    selectedTherepeuticArea.value = null
     collectedParameter.value = null
   }
+  console.log(selectedStatus.value)
   const params = {
-    studyStatus: studyStatus.value,
+    'studyStatus.code': selectedStatus.value,
     disease: selectedDisease.value ? selectedDisease.value.id : null,
-    therapeuticArea: therapeuticArea.value,
+    'therapeuticArea.iri': selectedTherepeuticArea.value,
     collectedParameter: selectedCollectedParameter.value ? selectedCollectedParameter.value.id : null
   }
-
-  // store.commit('updateFilters', { filters: params, router })
+  await studiesStore.fetchStudies(params)
 }
 
-const onReset = function () {
-  studyStatus.value = null
+async function onReset() {
+  selectedStatus.value = null
   disease.value = null
-  therapeuticArea.value = null
+  selectedTherepeuticArea.value = null
   collectedParameter.value = null
-
   if (props.layout === 'inline') {
     const params = {
       studyStatus: null,
@@ -228,44 +229,41 @@ const onReset = function () {
       therapeuticArea: null,
       collectedParameter: null
     }
-    // store.commit('updateFilters', { filters: params, router })
+  await studiesStore.fetchStudies(params)
   }
 }
 
-const getFiltersFromUrl = function () {
-  const params = {}
-  for (const param in route.query) {
-    if (['studyStatus', 'therapeuticArea'].includes(param)) {
-      eval(`${param}.value = params[param] = route.query[param]`)
-    } else if (param === 'disease') {
-      // store.dispatch('getDiseaseData', {
-      //   diseaseCode: route.query[param],
-      //   callback: (diseaseData) => {
-      //     selectedDisease.value = diseaseData
-      //     disease.value =
-      //       selectedDisease.value[getI18nLabel()] + ' ' + selectedDisease.value.code
-      //   }
-      // })
-    } else if (param === 'collectedParameter') {
-      // store.dispatch('getCollectedParameterData', {
-      //   collectedParameterCode: route.query[param],
-      //   callback: (collectedParameterData) => {
-      //     selectedCollectedParameter.value = collectedParameterData
-      //     collectedParameter.value =
-      //       selectedCollectedParameter.value[getI18nLabel()]
-      //   }
-      // })
-    }
-  }
-}
+// const getFiltersFromUrl = function () {
+//   const params = {}
+//   for (const param in route.query) {
+//     if (['studyStatus', 'therapeuticArea'].includes(param)) {
+//       eval(`${param}.value = params[param] = route.query[param]`)
+//     } else if (param === 'disease') {
+//       // store.dispatch('getDiseaseData', {
+//       //   diseaseCode: route.query[param],
+//       //   callback: (diseaseData) => {
+//       //     selectedDisease.value = diseaseData
+//       //     disease.value =
+//       //       selectedDisease.value[getI18nLabel()] + ' ' + selectedDisease.value.code
+//       //   }
+//       // })
+//     } else if (param === 'collectedParameter') {
+//       // store.dispatch('getCollectedParameterData', {
+//       //   collectedParameterCode: route.query[param],
+//       //   callback: (collectedParameterData) => {
+//       //     selectedCollectedParameter.value = collectedParameterData
+//       //     collectedParameter.value =
+//       //       selectedCollectedParameter.value[getI18nLabel()]
+//       //   }
+//       // })
+//     }
+//   }
+// }
 
 onMounted(async () => {
   statusOptions.value = await filtersStore.getStudyStatusOptions()
   therapeuticAreaOptions.value = await filtersStore.getTherapeuticAreaOptions()
-  console.log(therapeuticAreaOptions.value)
   // store.dispatch('getDiseaseOptions')
-  // store.dispatch('getStudyStatusOptions')
-  // store.dispatch('getTherapeuticAreaOptions')
   // store.dispatch('getCollectedParameterOptions')
   // getFiltersFromUrl()
 })

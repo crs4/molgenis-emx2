@@ -12,7 +12,7 @@
       <tbody>
         <tr
           v-for="study in studies"
-          :key="study.identifier"
+          :key="study.id"
           class="clickable-row"
           @click="studyDetailsPageHandler(study)">
           <td v-for="field in fields" :key="field.key">{{ study[field.key] }}</td>
@@ -34,7 +34,7 @@ const studiesStore = useStudiesStore()
 
 const fields = ref([
   {
-    key: 'name',
+    key: 'label',
     label: 'name_label'
   },
   {
@@ -67,7 +67,7 @@ const runQueryStudies = () => {
   }
 }
 
-const studyDetailsPageHandler = (record) => {
+const studyDetailsPageHandler = () => {
   // store.dispatch('getStudyDetails', { studyId: record.identifier, router })
 }
 
