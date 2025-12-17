@@ -1,4 +1,5 @@
 import StudySearchContainer from '../components/StudySearchContainer.vue'
+import StudyDetails from '../components/StudyDetails.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
@@ -7,11 +8,11 @@ const router = createRouter({
     {
       path: '/',
       component: StudySearchContainer
-      // },
-      // {
-      //   path: 'studies/:studyId',
-      //   name: 'study',
-      //   component: StudyDetails
+    },
+    {
+      path: '/:studyId',
+      name: 'study',
+      component: StudyDetails
     }
   ]
 })

@@ -25,12 +25,11 @@
 <script setup>
 import { useStudiesStore } from '../stores/studies'
 import { computed, ref, watch } from 'vue'
-// import { useRouter, useRoute } from 'vue-router'
+import { useRouter } from 'vue-router'
 import SearchForm from './SearchForm.vue'
 const studiesStore = useStudiesStore()
 
-// const router = useRouter()
-// const route = useRoute()
+const router = useRouter()
 
 const fields = ref([
   {
@@ -67,8 +66,9 @@ const runQueryStudies = () => {
   }
 }
 
-const studyDetailsPageHandler = () => {
-  // store.dispatch('getStudyDetails', { studyId: record.identifier, router })
+const studyDetailsPageHandler = (study) => {
+  // studiesStore.fetchStudies, { studyId: record.identifier, router })
+  router.push(`/${study.id}`)
 }
 
 watch(filters, runQueryStudies, { immediate: true })

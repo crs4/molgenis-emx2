@@ -1,0 +1,7 @@
+export const ORGANIZATIONAL_UNIT = 'http://www.w3.org/ns/org#OrganizationalUnit'
+export const LOCATION_HEALTHCARE_FACILITY_IRI = 'http://purl.obolibrary.org/obo/NCIT_C21541'
+export const LOCATION_HOSPITAL_IRI = 'http://purl.obolibrary.org/obo/NCIT_C16696'
+export const THERAPEUTIC_AREA_IRI = 'http://purl.obolibrary.org/obo/NCIT_C101302'
+export const COLLECTED_SPECIMEN_TYPE_IRI = 'http://purl.obolibrary.org/obo/NCIT_C70713'
+export const PRINCIPAL_INVESTIGATOR_IRI = 'http://purl.obolibrary.org/obo/OBI_0000103'
+export const DATA_STEWARD_IRI = 'http://data.loterre.fr/ark:/67375/TSO-GN16Q9CK-8'

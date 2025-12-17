@@ -1,19 +1,19 @@
 <template>
   <div :class="{ 'd-flex': alignment === 'horizontal' }">
-    <div v-if="type !== 'button'" class="font-weight-bold" :class="alignment">
-      {{ name | i18n }}
+    <div v-if="type !== 'button'" class="fw-bold" :class="alignment">
+      {{ $t(name) }}
     </div>
-    <b-button
+    <button
       v-if="type === 'button'"
       :disabled="value === '' || value === undefined"
-      :href="value"
-      class="btn btn-secondary btn-sm">
-      {{ name | i18n }}
-    </b-button>
+      class="btn btn-secondary btn-sm"
+      @click="navigateTo(value)">
+      {{ $t(name) }}
+    </button>
     <span v-else-if="type === 'span'">
       {{ value }}
     </span>
-    <a v-else-if="type === 'mailto'" :href="value">
+    <a v-else-if="type === 'mailto'" :href="`mailto:${value}`">
       <i class="fa fa-envelope" aria-hidden="true" />
     </a>
     <div
@@ -27,11 +27,9 @@
         :key="`${item}-${index}`"
         :href="item.IRI"
         target="_blank"
-      class="badge badge-pill mr-1 mb-1"
-      :class="badgeColor()"
-      data-toggle="tooltip"
-      data-placement="top"
-      :title="'iri_tooltip_message' | i18n">{{ item[getI18nLabel] }}</a>
+        class="badge rounded-pill me-1 mb-1"
+        :class="badgeColor()"
+        :title="$t('iri_tooltip_message')">{{ item[getI18nLabel] }}</a>
     </div>
     <div v-else :class="alignment">
       <study-attribute
@@ -45,31 +43,31 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { computed } from 'vue'
 import { getOntologyI18nLabelItem } from '../utils'
 
-export default {
-  name: 'StudyAttribute',
-  props: {
-    type: { type: String, default: 'div' },
-    name: { type: String, default: '' },
-    value: { type: [String, Array], default: '' },
-    alignment: { type: String, default: 'vertical' },
-    link: { type: String, default: '' },
-    valueColor: { type: String, default: 'primary' }
-  },
-  computed: {
-    valueType () {
-      return typeof this.value
-    },
-    getI18nLabel: getOntologyI18nLabelItem
-  },
-  methods: {
-    badgeColor () {
-      // return `badge-${this.valueColor}`
-      return 'badge-red'
-    }
-  }
+const props = defineProps({
+  type: { type: String, default: 'div' },
+  name: { type: String, default: '' },
+  value: { type: [String, Array], default: '' },
+  alignment: { type: String, default: 'vertical' },
+  link: { type: String, default: '' },
+  valueColor: { type: String, default: 'primary' }
+})
+
+const valueType = computed(() => {
+  return typeof props.value
+})
+
+const getI18nLabel = getOntologyI18nLabelItem
+
+const badgeColor = () => {
+  return `bg-${props.valueColor}`
+}
+
+const navigateTo = (url) => {
+  if (url) window.location.href = url
 }
 </script>
 

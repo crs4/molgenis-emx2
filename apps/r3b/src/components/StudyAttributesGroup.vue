@@ -1,11 +1,11 @@
 <template>
-  <b-row>
-    <b-col
+  <div class="row">
+    <div
       v-for="col in attributes"
       :key="col.id"
-      :sm="columnSize">
+      :class="`col-sm-${columnSize}`">
       <h2 v-if="col.header">
-        {{ col.header | i18n }}
+        {{ $t(col.header) }}
       </h2>
       <div
         v-for="attribute in col.items"
@@ -19,22 +19,20 @@
           :link="attribute.link"
           :valueColor="attribute.valueColor"/>
       </div>
-    </b-col>
-  </b-row>
+    </div>
+  </div>
 </template>
 
-<script>
+<script setup>
+import { computed } from 'vue'
 import StudyAttribute from './StudyAttribute.vue'
-export default {
-  components: { StudyAttribute },
-  props: {
-    attributeAlignment: { type: String, default: 'vertical' },
-    attributes: { type: Array, default: () => [] }
-  },
-  computed: {
-    columnSize () {
-      return 12 / this.attributes.length
-    }
-  }
-}
+
+const props = defineProps({
+  attributeAlignment: { type: String, default: 'vertical' },
+  attributes: { type: Array, default: () => [] }
+})
+
+const columnSize = computed(() => {
+  return 12 / props.attributes.length
+})
 </script>
