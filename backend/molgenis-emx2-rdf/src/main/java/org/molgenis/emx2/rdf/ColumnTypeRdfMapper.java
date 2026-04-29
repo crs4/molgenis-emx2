@@ -7,14 +7,23 @@ import static org.molgenis.emx2.rdf.IriGenerator.rowIRI;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Value;
 import org.eclipse.rdf4j.model.base.CoreDatatype;
 import org.eclipse.rdf4j.model.util.Values;
-import org.molgenis.emx2.*;
+import org.molgenis.emx2.Column;
+import org.molgenis.emx2.ColumnType;
+import org.molgenis.emx2.Reference;
+import org.molgenis.emx2.Row;
 
 /**
  * Used for functionalities that are {@link ColumnType} specific. This includes:
@@ -225,6 +234,16 @@ public abstract class ColumnTypeRdfMapper {
     REFERENCE(CoreDatatype.XSD.ANYURI) {
       @Override
       Set<Value> retrieveValues(RdfMapData rdfMapData, Row row, Column column) {
+        String[] names =
+            (column.isArray()
+                ? row.getStringArray(column.getName())
+                : new String[] {row.getString(column.getName())});
+
+        Map<String, IRI> mappedNames =
+            rdfMapData
+                .getReferenceIriMapper()
+                .map(column.getRefTable().getSchemaName(), column.getRefTableName(), names);
+
         Map<String, String> colNameToRefTableColName =
             column.getReferences().stream()
                 .collect(Collectors.toMap(Reference::getName, Reference::getRefTo));
@@ -263,11 +282,19 @@ public abstract class ColumnTypeRdfMapper {
         // Generate IRIs
         return itemsToMap.stream()
             .map(
-                item ->
-                    rowIRI(
+                item -> {
+                  IRI referenceIri =
+                      mappedNames.get(
+                          item.values().stream().filter(Objects::nonNull).findFirst().orElse(null));
+                  if (referenceIri != null) {
+                    return referenceIri;
+                  } else {
+                    return rowIRI(
                         rdfMapData.getBaseURL(),
                         column.getRefTable().getRootTable(),
-                        new PrimaryKey(item)))
+                        new PrimaryKey(item));
+                  }
+                })
             .collect(Collectors.toUnmodifiableSet());
       }
 

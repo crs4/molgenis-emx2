@@ -36,6 +36,7 @@ import org.molgenis.emx2.rdf.ColumnTypeRdfMapper;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
+import org.molgenis.emx2.rdf.mappers.ReferenceIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
 public class Emx2RdfGenerator extends RdfRowsGenerator {
@@ -46,7 +47,8 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
   @Override
   public void generate(Schema schema) {
     List<Table> tables = schema.getTablesSorted();
-    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
+    RdfMapData rdfMapData =
+        new RdfMapData(getBaseURL(), new OntologyIriMapper(tables), new ReferenceIriMapper(tables));
     NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), schema);
 
     generatePrefixes(namespaces.getAllNamespaces(schema));
@@ -61,7 +63,8 @@ public class Emx2RdfGenerator extends RdfRowsGenerator {
   @Override
   public void generate(Table table) {
     Set<Table> tables = tablesToDescribe(table.getSchema(), table);
-    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
+    RdfMapData rdfMapData =
+        new RdfMapData(getBaseURL(), new OntologyIriMapper(tables), new ReferenceIriMapper(tables));
     NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), table.getSchema());
 
     generatePrefixes(namespaces.getAllNamespaces(table.getSchema()));

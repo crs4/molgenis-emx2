@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.molgenis.emx2.*;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
+import org.molgenis.emx2.rdf.mappers.ReferenceIriMapper;
 import org.molgenis.emx2.sql.TestDatabaseFactory;
 
 /**
@@ -225,7 +226,10 @@ class ColumnTypeRdfMapperTest {
 
     // Prepares RdfMapData
     rdfMapData =
-        new RdfMapData(BASE_URL, new OntologyIriMapper(allColumnTypes.getTable(ONT_TABLE)));
+        new RdfMapData(
+            BASE_URL,
+            new OntologyIriMapper(allColumnTypes.getTable(ONT_TABLE)),
+            new ReferenceIriMapper(allColumnTypes.getTable(TEST_TABLE)));
   }
 
   @AfterAll

@@ -19,6 +19,7 @@ import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
+import org.molgenis.emx2.rdf.mappers.ReferenceIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
 public class SemanticRdfGenerator extends RdfRowsGenerator {
@@ -29,7 +30,8 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
   @Override
   public void generate(Schema schema) {
     List<Table> tables = schema.getTablesSorted();
-    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
+    RdfMapData rdfMapData =
+        new RdfMapData(getBaseURL(), new OntologyIriMapper(tables), new ReferenceIriMapper(tables));
     NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), schema);
 
     generatePrefixes(namespaces.getAllNamespaces(schema));
@@ -71,7 +73,12 @@ public class SemanticRdfGenerator extends RdfRowsGenerator {
       NamespaceMapper namespaces, RdfMapData rdfMapData, Table table, Row row) {
     if (row.isDraft()) return;
 
-    final IRI subject = rowIRI(getBaseURL(), table, row);
+    IRI subject;
+    if (row.getString("IRI") != null) {
+      subject = Values.iri(row.getString("IRI"));
+    } else {
+      subject = rowIRI(getBaseURL(), table, row);
+    }
 
     if (table.getMetadata().getSemantics() != null) {
       for (String semantics : table.getMetadata().getSemantics()) {

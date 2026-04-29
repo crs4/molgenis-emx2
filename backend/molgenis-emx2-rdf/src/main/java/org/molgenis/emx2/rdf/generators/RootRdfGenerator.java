@@ -8,6 +8,7 @@ import org.molgenis.emx2.TableType;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
+import org.molgenis.emx2.rdf.mappers.ReferenceIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
 /**
@@ -30,7 +31,8 @@ public class RootRdfGenerator extends RdfGenerator {
             .flatMap(Collection::stream)
             .filter(i -> i.getMetadata().getTableType() == TableType.DATA)
             .toList();
-    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
+    RdfMapData rdfMapData =
+        new RdfMapData(getBaseURL(), new OntologyIriMapper(tables), new ReferenceIriMapper(tables));
 
     generatePrefixes(namespaces.getAllNamespaces());
     schemas.forEach(this::generateCustomRdf);

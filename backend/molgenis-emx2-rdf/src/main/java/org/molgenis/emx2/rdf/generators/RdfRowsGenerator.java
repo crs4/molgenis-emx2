@@ -9,6 +9,7 @@ import org.molgenis.emx2.rdf.PrimaryKey;
 import org.molgenis.emx2.rdf.RdfMapData;
 import org.molgenis.emx2.rdf.mappers.NamespaceMapper;
 import org.molgenis.emx2.rdf.mappers.OntologyIriMapper;
+import org.molgenis.emx2.rdf.mappers.ReferenceIriMapper;
 import org.molgenis.emx2.rdf.writers.RdfWriter;
 
 public abstract class RdfRowsGenerator extends RdfGenerator implements RdfApiGenerator {
@@ -20,7 +21,8 @@ public abstract class RdfRowsGenerator extends RdfGenerator implements RdfApiGen
   @Override
   public void generate(Table table, PrimaryKey primaryKey) {
     Set<Table> tables = tablesToDescribe(table.getSchema(), table);
-    RdfMapData rdfMapData = new RdfMapData(getBaseURL(), new OntologyIriMapper(tables));
+    RdfMapData rdfMapData =
+        new RdfMapData(getBaseURL(), new OntologyIriMapper(tables), new ReferenceIriMapper(tables));
     NamespaceMapper namespaces = new NamespaceMapper(getBaseURL(), table.getSchema());
 
     generatePrefixes(namespaces.getAllNamespaces(table.getSchema()));
